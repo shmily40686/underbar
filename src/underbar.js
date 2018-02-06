@@ -7,6 +7,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -37,6 +38,15 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if(n===undefined){
+      return array[array.length -1];
+    }else{
+      if(n>array.length){
+        return array.slice(0,array.length);
+      }else{
+      return array.slice(array.length-n,array.length);
+      }
+    }
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -45,6 +55,15 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+    if(Array.isArray(collection)){
+      for(var i =0;i<collection.length;i++){
+        iterator(collection[i],i,collection);
+      }
+    }else if( typeof collection==="object"){
+      for(var i in collection){
+        iterator(collection[i],i,collection);
+      }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -66,24 +85,75 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+     var newArr=[];
+     for(var i =0;i<collection.length;i++){
+       if(test(collection[i])===true){
+        newArr.push(collection[i]);
+       }
+     }
+     return newArr;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+     var newArr=[];
+     for(var i =0;i<collection.length;i++){
+       if(test(collection[i])!==true){
+        newArr.push(collection[i]);
+       }
+     }
+     return newArr;
   };
 
   // Produce a duplicate-free version of the array.
   _.uniq = function(array, isSorted, iterator) {
+    // check if array is sorted
+    // if not, sort it
+    array = isSorted ? array : array.slice(0, array.length).sort();
+    var returnedArray=[];
+    var uniqueIndexes=[];
+    var uniqueValues=new Set();
+
+    if(iterator!==undefined){
+      var iteratedArray=_.map(array, iterator);
+
+      for(var i=0;i<iteratedArray.length;i++){
+        if(!uniqueValues.has(iteratedArray[i])){
+          uniqueIndexes.push(i);
+          uniqueValues.add(iteratedArray[i]);
+        }
+      }
+      for(var i=0;i<uniqueIndexes.length;i++){
+        returnedArray.push(array[uniqueIndexes[i]]);
+      }
+    }else{
+      for(var i=0;i<array.length;i++){
+        if(!uniqueValues.has(array[i])){
+          uniqueIndexes.push(i);
+          uniqueValues.add(array[i]);
+        }
+      }
+      for(var i=0;i<uniqueIndexes.length;i++){
+        returnedArray.push(array[uniqueIndexes[i]]);
+      }
+    }
+    // return a new array of only unique-value indexes
+    return returnedArray;
   };
 
 
   // Return the results of applying an iterator to each element.
   _.map = function(collection, iterator) {
+    var newArr=[];
+     for(var i=0;i<collection.length;i++){
+       newArr.push(iterator(collection[i]));
+     }
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
+    return newArr;
   };
 
   /*
@@ -125,6 +195,16 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    var noAccumulator = accumulator===undefined;
+    _.each(collection,function(x){
+      if(noAccumulator){
+        accumulator=x;
+        noAccumulator=false;
+      }else{
+        accumulator=iterator(accumulator,x);
+      }
+    });
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
